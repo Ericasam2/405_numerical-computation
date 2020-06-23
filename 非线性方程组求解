@@ -1,0 +1,91 @@
+#非线性方程组的不动点迭代法
+def FPI_multiequation():
+    import math as m
+    import numpy as np
+    x1=np.zeros(100)
+    x2=np.zeros(100)
+    x3=np.zeros(100)
+    n=10                    #迭代次数
+    
+    #赋初始值
+    x1[0]=0
+    x2[0]=0
+    x3[0]=0
+    
+    #定义不动点函数g(x)=x*
+    def f1(x2,x3):
+        return (m.cos(x2*x3)+0.2)/3       #将原来的f1(x1,x2,x3)=0化为x1=g1(x1,x2,x3)形式
+    
+    def f2(x1,x3):
+        return m.sqrt(x1**2+m.sin(x3)+1.06)/9-0.1    #将原来的f2(x1,x2,x3)=0化为x2=g2(x1,x2,x3)形式
+    
+    def f3(x1,x2):
+        return -(m.exp(-x1*x2)+10*m.pi/3-1)/20    #将原来的f3(x1,x2,x3)=0化为x3=g3(x1,x2,x3)形式
+    
+    for i in range(n):
+        x1[i+1]=f1(x2[i],x3[i])
+        x2[i+1]=f2(x1[i],x3[i])
+        x3[i+1]=f3(x1[i],x2[i])
+        print("x1({0})={1}".format(i,x1[i+1]))
+        print("x2({0})={1}".format(i,x2[i+1]))
+        print("x3({0})={1}".format(i,x3[i+1]))
+        print("======================")
+
+
+
+#牛顿法求非线性方程组
+def newton_multiequation():
+    import numpy as np
+    #设定初始值
+    x1=np.zeros(100)
+    x2=np.zeros(100)
+    x3=np.zeros(100)
+    x1[0]=0
+    x2[0]=0.001
+    x3[0]=-0.3
+    
+    #
+    delta_x1=1
+    delta_x2=1
+    delta_x3=1
+    count=0
+    
+    #原方程组
+    def F(x1,x2,x3):
+        return np.array([[3*x1-np.cos(x2*x3)-0.5],
+                          [x1**2-81*(x2+0.1)**2+np.sin(x3)+1.06],
+                          [np.e**(-x1*x2)+20*x3+10*np.pi/3-1]])
+    
+    #雅可比矩阵
+    def dF(x1,x2,x3):
+        return np.array([[3,np.sin(x2*x3)*x3,np.sin(x2*x3)*x2],
+                        [2*x1,162*(x2+0.1),np.cos(x3)],
+                        [np.e**(-x1*x2)*(-x2),np.e**(-x1*x2)*(-x1),20]])
+    
+    for i in range(100):
+        #设置结果精度
+        if(abs(delta_x1)>10**(-8) and 
+           abs(delta_x2)>10**(-8) and
+           abs(delta_x3)>10**(-8)):
+            
+            #雅可比矩阵的逆矩阵*原矩阵
+            delta_X=F(x1[i],x2[i],x3[i])*np.linalg.inv(dF(x1[i],x2[i],x3[i]))
+            
+            #因为求出来的是矩阵形式，所以可以通过[a][b]的方式提取其中的元素
+            #求出的delta矩阵是3*1，三行一列
+            delta_x1=delta_X[0][0]
+            delta_x2=delta_X[1][0]
+            delta_x3=delta_X[2][0]
+            
+            #
+            x1[i+1]=x1[i]-delta_x1
+            x2[i+1]=x2[i]-delta_x2
+            x3[i+1]=x3[i]-delta_x3
+            
+            #记录最大值希望得到的精度在哪里取到，得到下标
+            count=count+1
+        else:
+            break
+        print("x1({0})={1:f}".format(count,x1[count]))
+        print("x2({0})={1:f}".format(count,x2[count]))
+        print("x3({0})={1:f}".format(count,x3[count]))
