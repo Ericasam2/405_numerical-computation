@@ -1,0 +1,40 @@
+import numpy as np
+#高斯消元法
+
+def array_input(i,j):      #定义一个函数用来输入矩阵
+    a=[]
+    print("输入矩阵:\n")
+    for x in range(0,i):
+        temp=[]
+        for y in range(0,j):
+            temp.append(int(input("输入a[{0}][{1}]:".format(x,y))))
+        a.append(temp)
+    return np.array(a)
+
+def is_zero(line):         #用来判断矩阵的行向量是不是均为零
+    count=0
+    for j in range(0,len(line)):
+        if(line[j]==0):
+            count=count+1
+    if(count==len(line)):
+        return 0
+    else:
+        return 1
+        
+def gauss(a):             #高斯消元法的函数
+    count=0
+    for j in range(0,a.shape[1]-1):    #.shape用来得到矩阵的行数和列数
+        for i in range(j+1,a.shape[0]):
+            a[i]=a[i]-a[j]*(a[i][j]/a[j][j])      #进行高斯消元运算
+            if(is_zero(a[i]!=0)):            #进行矩的运算
+                count=count+1
+        print(a)
+        print("==========")
+    print("秩为：{}".format(count))
+    
+
+def main():          #主函数
+    i=int(input("输入矩阵行数："))
+    j=int(input("输入矩阵列数："))
+    array=array_input(i,j)
+    gauss(array)
