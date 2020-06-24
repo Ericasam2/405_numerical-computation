@@ -1,0 +1,62 @@
+#最小二乘法拟合三次曲线
+import numpy as np
+import matplotlib.pyplot as plt
+
+order=3    #生成逼近曲线的阶数
+
+#生成采样坐标点
+x=np.arange(-1.0,1.01,0.2)    #生成等差的抽样序列
+y=[1/(1+25*a**2) for a in x]    
+
+#将array型变成list方便操作
+x_axis=[]
+y_axis=[]
+for i in range(11):
+    x_axis.append(x[i])    
+    y_axis.append(y[i])
+
+#求出左边的矩阵
+matA=[]
+for i in range(order+1):
+    mat=[]
+    for j in range(i,i+order+1):
+        sumA=0
+        for xi in x_axis:
+            sumA=sumA+xi**j
+        mat.append(sumA)
+    matA.append(mat)
+A=np.array(matA)
+
+#求右边的矩阵
+matB=[]
+for i in range(order+1):
+    mat=[]
+    sumB=0
+    for xi in x_axis:
+        sumB=sumB+xi**i*y_axis[i]
+    mat.append(sumB)
+    matB.append(mat)
+B=np.array(matB)
+
+a=np.linalg.solve(A,B)
+
+#定义拟合曲线
+def fitted_curve(x,a):
+    y=0
+    for i in range(order+1):
+        y=y+a[i]*x**i
+    return y
+
+#生成拟合曲线的离散坐标
+fitted_x_axis=x_axis
+fitted_y_axis=[]
+for x in fitted_x_axis:
+    fitted_y_axis.append(fitted_curve(x,a))
+    
+#画图
+plt.plot(x_axis,y_axis,"red")
+plt.plot(fitted_x_axis,fitted_y_axis,"blue")
+plt.title("散点图和拟合曲线")
+plt.xlabel("x")
+plt.ylabel("y")
+print("y={0:.4}*x^3+{1:.4}*x^2+{2:.4}*x+{3:.4}".format(a[3][0],a[2][0],a[1][0],a[0][0]))
